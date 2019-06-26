@@ -17,6 +17,7 @@ import cucumber.api.java.en.When;
 public class LoginStepDefinition {
 
 	static WebDriver driver;
+	static String newValue;
 
 	@Given("^user is already on login page$")
 
@@ -90,20 +91,29 @@ public class LoginStepDefinition {
 		Assert.assertEquals(feedname, title);
 	}
 
-	@Then("^enter new version$")
-	public void user_enters_new_version() {
+	@Then("^changes the version$")
+	public void changes_the_version() {
 		String oldValue = driver.findElement(By.name("version")).getAttribute("value");
 		driver.findElement(By.name("version")).sendKeys(Keys.CONTROL + "a");
 		driver.findElement(By.name("version")).sendKeys(Keys.DELETE);
-		String newValue;
+
 		if (oldValue.equals("1.0"))
-				newValue = "2.0";
+			newValue = "2.0";
 		else
 			newValue = "1.0";
-		
+
 		driver.findElement(By.name("version")).sendKeys(newValue);
 		driver.findElement(By.xpath("//span[text()='Save']")).click();
 
+	}
+
+	@Then("^the version for \"(.*)\" should get updated$")
+	public void the_version_for_feedname_should_get_updated(String feedname) {
+		WebElement allFeedsAnchor = driver.findElement(By.xpath("//a[text()='All Feeds']"));
+		driver.navigate().to(allFeedsAnchor.getAttribute("href"));
+		driver.findElement(By.xpath("//span[text()='" + feedname + "']")).click();
+		String currentValue = driver.findElement(By.name("version")).getAttribute("value");
+		Assert.assertEquals(currentValue, newValue);
 	}
 
 }
